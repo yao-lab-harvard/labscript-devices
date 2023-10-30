@@ -435,7 +435,11 @@ class ZCU4Worker(Worker):
 
         return results
 
-
+    
+    ### This basically assumes an interactive session (with root access) is running on FPGA
+    ### It types "pulse_list = <>", "sequence_list = <>", "loop_number_string = <>", and "exec(open('send_pulse.py').read())"
+    ### to the interactive session in hope that it will run
+    ### It also opens and closes serial port 
     def program_manual(self,front_panel_values):
 
         ZCU4ser = serial.Serial(self.COMPort, baudrate=self.baudrate, timeout=1)
@@ -472,6 +476,8 @@ class ZCU4Worker(Worker):
         return self.check_remote_values()
     
     # user added function
+    ### Isn't this exactly the same as above?
+    ### TODO: can possibly just comment this out
     def start_run(self):
         ZCU4ser = serial.Serial(self.COMPort, baudrate=self.baudrate, timeout=1)
         if(ZCU4ser.isOpen() == False):
@@ -491,6 +497,9 @@ class ZCU4Worker(Worker):
         #raise LabscriptError(str(sequence_list_string))
         self.started = True
 
+
+    ### This code currently does nothing more than writing to the BLACS screen
+    ### It reads stuff from h5file but does not run them
     def transition_to_buffered(self,device_name,h5file,initial_values,fresh):
         self.h5file = h5file
         self.started = False
@@ -518,6 +527,8 @@ class ZCU4Worker(Worker):
                         break'''
             #raise LabscriptError(self.sequence_list)
             #self.logger.info(pulse_program)
+            
+            ### All of these just writes to the BLACS screen
             self.logger.info(self.sequence_list)
             for i in range(len(DDS)):
                 self.pulse_list.append([int(DDS[i][0].decode()), DDS[i][1].decode(), int(float(DDS[i][2].decode())*(10**9)), int(DDS[i][3].decode()),int(DDS[i][4].decode()),int(DDS[i][5].decode()),int(DDS[i][6].decode()),DDS[i][7].decode(),DDS[i][8].decode(),DDS[i][9].decode()    ]   )
@@ -541,7 +552,8 @@ class ZCU4Worker(Worker):
             return_values = {}
             # Since we are converting from an integer to a binary string, we need to reverse the string! (see notes above when we create flags variables)
             return_channels = 8
-
+            
+            ### NOT Sure what this is for
             return_flags = reversed(bin(return_channels))
             for j, k  in enumerate(reversed(bin(return_channels))):
                 if k != 'b':
@@ -685,12 +697,12 @@ class ZCU4Parser(object):
 
 import labscript_devices
 
-labscript_device_name = 'ZCU4'
-blacs_tab = 'labscript_devices.ZCU4.ZCU4Tab'
-parser = 'labscript_devices.ZCU4.ZCU4Parser'
+# labscript_device_name = 'ZCU4'
+# blacs_tab = 'labscript_devices.ZCU4.ZCU4Tab'
+# parser = 'labscript_devices.ZCU4.ZCU4Parser'
 
-labscript_devices.register_classes(
-    labscript_device_name=labscript_device_name,
-    BLACS_tab=blacs_tab,
-    runviewer_parser=parser,
-)
+# labscript_devices.register_classes(
+#     labscript_device_name=labscript_device_name,
+#     BLACS_tab=blacs_tab,
+#     runviewer_parser=parser,
+# )

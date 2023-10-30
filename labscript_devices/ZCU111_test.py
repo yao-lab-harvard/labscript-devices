@@ -22,6 +22,8 @@ from ctypes import *
 import struct
 import serial
 import time
+
+### This is not used anywhere
 max_deviations = [
     {'low': 0.1,        'high': 249.999,    'dev': 10.0},
     {'low': 249.999,    'high': 500.0,      'dev': 5.0},
@@ -136,6 +138,7 @@ class ZCU111(IntermediateDevice):
         #print(DDS_table)
         #print(pulse_sequence_list)
         return settings, pulse_sequence_list, sequence_list
+    
     def generate_code(self, hdf5_file):
         # Generate the hardware instructions
         IntermediateDevice.generate_code(self, hdf5_file)
@@ -262,6 +265,8 @@ class ZCU111Worker(Worker):
         if(self.ZCU4ser.isOpen() == False):
             self.ZCU4ser.open()
 
+        ### All of these is to run initialize.py in the working directory under root access
+        ### 
         self.ZCU4ser.write(b"cd jupyter_notebooks\r\n")
 
         self.ZCU4ser.write(b"cd qick\r\n")
@@ -295,6 +300,7 @@ class ZCU111Worker(Worker):
 
         return results
 
+    ### This does nothing
     def program_manual(self,front_panel_values):
         self.logger.info("In MANUAL")
 
@@ -355,7 +361,7 @@ class ZCU111Worker(Worker):
             Settings = group['Settings']
             DDS = group['DDS']
             TTL = group['TTL']
-            group = hdf5_file['devices/%s'%device_name]
+            group = hdf5_file['devices/%s'%device_name]     ### Why load again?
             DDS_table = group['DDS'][:]
             self.reps = int(Settings[0][0].decode())
             self.delay_time_repetitions = float(Settings[0][1].decode())
@@ -370,6 +376,7 @@ class ZCU111Worker(Worker):
             self.ZCU4ser.open()
 
         
+        ### All these is just writing the pulse sequence info to send_pulse.py
         pulse_list_string = "pulse_list = " + str(self.pulse_list) + "\r\n"
         self.ZCU4ser.write(pulse_list_string.encode())
         sequence_list_string = "sequence_list = " + str(self.sequence_list) + "\r\n"
@@ -442,10 +449,10 @@ class ZCU111Worker(Worker):
 
 import labscript_devices
 
-labscript_device_name = 'ZCU111'
-blacs_tab = 'labscript_devices.ZCU111.ZCU111Tab'
+# labscript_device_name = 'ZCU111_test'
+# blacs_tab = 'labscript_devices.ZCU111.ZCU111Tab_Test'
 
-labscript_devices.register_classes(
-    labscript_device_name=labscript_device_name,
-    BLACS_tab=blacs_tab
-)
+# labscript_devices.register_classes(
+#     labscript_device_name=labscript_device_name,
+#     BLACS_tab=blacs_tab
+# )

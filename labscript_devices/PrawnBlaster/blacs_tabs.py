@@ -103,7 +103,7 @@ class PrawnBlasterTab(DeviceTab):
             "num_pseudoclocks": self.connection_table_properties["num_pseudoclocks"],
             "out_pins": self.connection_table_properties["out_pins"],
             "in_pins": self.connection_table_properties["in_pins"],
-        }
+        } 
         self.create_worker(
             "main_worker",
             "labscript_devices.PrawnBlaster.blacs_workers.PrawnBlasterWorker",
