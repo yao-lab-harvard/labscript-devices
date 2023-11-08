@@ -66,6 +66,8 @@ class NI_DAQmxTab(DeviceTab):
 
         clock_terminal = properties['clock_terminal']
         clock_mirror_terminal = properties['clock_mirror_terminal']
+        # get to avoid error on older connection tables
+        connected_terminals = properties.get('connected_terminals', None)
         static_AO = properties['static_AO']
         static_DO = properties['static_DO']
         clock_limit = properties['clock_limit']
@@ -98,15 +100,11 @@ class NI_DAQmxTab(DeviceTab):
             DO_proplist.append((port_str, port_props))
 
         # Create the output objects
-       
         self.create_analog_outputs(AO_prop)
 
         # Create widgets for outputs defined so far (i.e. analog outputs only)
         _, AO_widgets, _ = self.auto_create_widgets()
-        counter_prop = {}
-        counter_prop['Run CPS'] = {}
-        self.create_digital_outputs(counter_prop)
-        counter_widgets = self.create_digital_widgets(counter_prop)
+
         # now create the digital output objects one port at a time
         for _, DO_prop in DO_proplist:
             self.create_digital_outputs(DO_prop)
@@ -115,7 +113,7 @@ class NI_DAQmxTab(DeviceTab):
         DO_widgets_by_port = {}
         for port_str, DO_prop in DO_proplist:
             DO_widgets_by_port[port_str] = self.create_digital_widgets(DO_prop)
-        
+
         # Auto place the widgets in the UI, specifying sort keys for ordering them:
         widget_list = [("Analog outputs", AO_widgets, split_conn_AO)]
         for port_num in range(len(ports)):
@@ -127,7 +125,6 @@ class NI_DAQmxTab(DeviceTab):
             else:
                 name += ' (static)'
             widget_list.append((name, DO_widgets, split_conn_DO))
-        widget_list.append(("Counter", counter_widgets))
         self.auto_place_widgets(*widget_list)
 
         # We only need a wait monitor worker if we are if fact the device with
@@ -209,29 +206,13 @@ class NI_DAQmxTab(DeviceTab):
                     'AI_range': properties['AI_range'],
                     'AI_start_delay': properties['AI_start_delay'],
                     'AI_start_delay_ticks': properties['AI_start_delay_ticks'],
+                    'AI_timebase_terminal': properties.get('AI_timebase_terminal',None),
+                    'AI_timebase_rate': properties.get('AI_timebase_rate',None),
                     'clock_terminal': clock_terminal,
                 },
             )
             self.add_secondary_worker("acquisition_worker")
-        
-        self.create_worker(
-                "counter_worker",
-                'labscript_devices.NI_DAQmx.blacs_workers.NI_DAQmxCounterAcquisitionWorker',
-                {
-                    'MAX_name': self.MAX_name,
-                    'clock_terminal': clock_terminal,
-                },
-            )
-        self.add_secondary_worker("counter_worker") #ejd 8/14
-        self.create_worker(
-                "gated_counter_worker",
-                'labscript_devices.NI_DAQmx.blacs_workers.NI_DAQmxGatedCounterAcquisitionWorker',
-                {
-                    'MAX_name': self.MAX_name,
-                    'clock_terminal': clock_terminal,
-                },
-            )
-        self.add_secondary_worker("gated_counter_worker")        
+
         # Set the capabilities of this device
         self.supports_remote_value_check(False)
         self.supports_smart_programming(False)

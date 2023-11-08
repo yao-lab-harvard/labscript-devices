@@ -65,7 +65,7 @@ CAPABILITIES = {
     'AO_range': [-10.0, 10.0],
     'max_AI_multi_chan_rate': 500000.0,
     'max_AI_single_chan_rate': 500000.0,
-    'max_AO_sample_rate': 917431.1926605505,
+    'max_AO_sample_rate': 917431.1926605505, #should be 719000? ejd 9/4/2023
     'max_DO_sample_rate': 1000000.0,
     'min_semiperiod_measurement': 1e-07,
     'num_AI': 32,
